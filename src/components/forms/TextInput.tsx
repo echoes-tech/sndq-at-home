@@ -6,7 +6,7 @@ export const TextInput = React.forwardRef<
   React.InputHTMLAttributes<HTMLInputElement>
 >(({ className, disabled = false, ...props }, ref) => {
   const disabledClass = disabled
-    ? "bg-gray-200 shadow-none cursor-not-allowed !border-gray-300 !border"
+    ? "bg-gray-200 shadow-none cursor-not-allowed !border-gray-200 !border"
     : "";
   return (
     <Input
