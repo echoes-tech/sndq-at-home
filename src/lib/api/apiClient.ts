@@ -49,9 +49,9 @@ api.interceptors.response.use(
     if (status === 403) {
       toast.error("Forbidden");
     }
-    if (status === 404) {
-      toast.error("Not found");
-    }
+    // if (status === 404) {
+    //   toast.error("Not found");
+    // }
     if (status === 500) {
       toast.error("Internal server error");
     }

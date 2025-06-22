@@ -1,10 +1,9 @@
 export interface User {
   id: string;
+  email: string;
   name: string;
-  info: string;
-  avatar: string; // URL string, empty string if no avatar
-  council: boolean;
-  activation: string;
-  lastLogin: string;
-  status: "Active" | "Disabled" | "Inactive";
+  code: string;
+  role: string;
+  is_council_member: boolean;
+  status: string;
 }

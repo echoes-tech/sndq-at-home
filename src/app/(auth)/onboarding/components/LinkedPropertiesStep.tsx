@@ -1,13 +1,16 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { LoginData } from "@/lib/types/auth";
 
 interface LinkedPropertiesStepProps {
-  onContinue: () => void;
+  onContinue: (data: LoginData) => void;
+  loginData: LoginData;
 }
 
 export function LinkedPropertiesStep({
   onContinue,
+  loginData,
 }: LinkedPropertiesStepProps) {
   return (
     <div className="w-full max-w-md mx-auto flex flex-col gap-3 p-4">
@@ -131,7 +134,7 @@ export function LinkedPropertiesStep({
       </div>
 
       {/* Continue Button */}
-      <Button onClick={onContinue}>Continue</Button>
+      <Button onClick={() => onContinue(loginData)}>Continue</Button>
     </div>
   );
 }

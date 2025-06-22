@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +13,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useUserStore } from "@/lib/stores/userStore";
+import {
+  useChangePassword,
+  useCheckPasswordStatus,
+} from "@/lib/api/auth/useAuth";
+import { toast } from "sonner";
+import { LoginData } from "@/lib/types/auth";
 
 const formSchema = z.object({
   password: z
@@ -35,12 +42,33 @@ const languages = [
 ];
 
 interface PersonalInfoStepProps {
-  onContinue: () => void;
+  onContinue: (data: LoginData) => void;
 }
 
 export function PersonalInfoStep({ onContinue }: PersonalInfoStepProps) {
   const [shareEmail, setShareEmail] = useState(true);
   const [sharePhone, setSharePhone] = useState(true);
+  const [hasPassword, setHasPassword] = useState<boolean | null>(null);
+  const { user } = useUserStore();
+  const checkPasswordStatus = useCheckPasswordStatus();
+  const changePassword = useChangePassword();
+
+  useEffect(() => {
+    async function checkStatus() {
+      if (user?.code) {
+        try {
+          const status = await checkPasswordStatus.mutateAsync(user.code);
+          setHasPassword(status.has_password);
+        } catch (error) {
+          console.error("Failed to check password status", error);
+          // Giả sử chưa có pass nếu API lỗi để user có thể đặt
+          setHasPassword(false);
+        }
+      }
+    }
+    checkStatus();
+  }, [user?.code]);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,11 +77,26 @@ export function PersonalInfoStep({ onContinue }: PersonalInfoStepProps) {
     },
   });
 
-  function onSubmit(data: FormValues) {
-    // Xử lý submit, có thể truyền data ra ngoài nếu muốn
-    console.log(data);
-    onContinue();
+  async function onSubmit(data: FormValues) {
+    try {
+      await changePassword.mutateAsync({
+        code: user?.code || "",
+        password: data.password,
+      });
+      toast.success("Password set successfully!");
+      onContinue({
+        email: user?.email || "",
+        password: data.password,
+      });
+    } catch {
+      toast.error("Failed to set password. Please try again.");
+    }
   }
+
+  // Tách tên thành first name và last name
+  const nameParts = user?.name?.split(" ") || [];
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
 
   return (
     <form
@@ -64,11 +107,11 @@ export function PersonalInfoStep({ onContinue }: PersonalInfoStepProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm mb-1">First name</label>
-          <div className="text-base text-gray-900">Benjamin</div>
+          <div className="text-base text-gray-900">{firstName}</div>
         </div>
         <div>
           <label className="block text-sm mb-1">Last name</label>
-          <div className="text-base text-gray-900">Esposito</div>
+          <div className="text-base text-gray-900">{lastName}</div>
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6">
@@ -83,7 +126,7 @@ export function PersonalInfoStep({ onContinue }: PersonalInfoStepProps) {
               <Switch checked={shareEmail} onCheckedChange={setShareEmail} />
             </div>
           </div>
-          <TextInput value="benjaminesposito@example.com" disabled />
+          <TextInput value={user?.email || ""} disabled />
         </div>
         {/* Phone row */}
         <div>
@@ -96,7 +139,7 @@ export function PersonalInfoStep({ onContinue }: PersonalInfoStepProps) {
               <Switch checked={sharePhone} onCheckedChange={setSharePhone} />
             </div>
           </div>
-          <TextInput value="+32 493 00 00 00" disabled />
+          <TextInput value={user?.phone || ""} disabled />
         </div>
       </div>
       <div>
@@ -106,6 +149,12 @@ export function PersonalInfoStep({ onContinue }: PersonalInfoStepProps) {
           className="w-full"
           placeholder="********"
         />
+        {hasPassword && (
+          <p className="text-xs text-gray-500 mt-1">
+            You have already set a password. Entering a new one will overwrite
+            it.
+          </p>
+        )}
         {form.formState.errors.password && (
           <p className="text-xs text-red-500 mt-1">
             {form.formState.errors.password.message}
@@ -143,7 +192,7 @@ export function PersonalInfoStep({ onContinue }: PersonalInfoStepProps) {
         </label>
         <div className="flex items-center gap-4 bg-gray-50 border rounded-lg p-4">
           <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-700 font-bold text-lg">
-            B
+            {user?.name?.charAt(0) || "U"}
           </div>
           <div className="flex-1">
             <div className="text-sm font-medium">Upload image</div>
@@ -163,7 +212,9 @@ export function PersonalInfoStep({ onContinue }: PersonalInfoStepProps) {
           Your avatar is only shared with your syndic and co-owners
         </div>
       </div>
-      <Button type="submit">Continue</Button>
+      <Button type="submit" disabled={changePassword.isPending}>
+        {changePassword.isPending ? "Setting password..." : "Continue"}
+      </Button>
     </form>
   );
 }

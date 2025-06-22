@@ -1,52 +1,59 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-const user = {
-  name: "Mitchell",
-  avatar: "/icons/avatar.svg",
-  owner: {
-    name: "Residentie d'Urville",
-    address: "Zuidstraat 31, 8820 Torhout",
-    units: [
-      {
-        type: "apartment",
-        name: "Apartment 101",
-        role: "Owner",
-        // paymentsDue: 2,
-        href: "/(dashboard)/apartment-101",
-      },
-      {
-        type: "storage",
-        name: "Storage unit 1",
-        role: "Owner",
-        href: "/(dashboard)/storage-1",
-      },
-      {
-        type: "garage",
-        name: "Garagebox 1",
-        role: "Owner",
-        href: "/(dashboard)/garagebox-1",
-      },
-    ],
-  },
-  lease: {
-    name: "CommLease_Meir1_2024",
-    startDate: "01/01/2024",
-    endDate: "31/12/2024",
-    units: [
-      {
-        type: "commercial",
-        name: "Commercial property 1",
-        role: "Tenant",
-        href: "/(dashboard)/commercial-1",
-      },
-    ],
-  },
-};
+import { useAuthStore } from "@/lib/stores/authStore";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { toast } from "sonner";
 
 export default function DashboardOverviewPage() {
+  const { user, logout } = useAuthStore();
+  const data = {
+    owner: {
+      name: "Residentie d'Urville",
+      address: "Zuidstraat 31, 8820 Torhout",
+      units: [
+        {
+          type: "apartment",
+          name: "Apartment 101",
+          role: "Owner",
+          // paymentsDue: 2,
+          href: "/(dashboard)/apartment-101",
+        },
+        {
+          type: "storage",
+          name: "Storage unit 1",
+          role: "Owner",
+          href: "/(dashboard)/storage-1",
+        },
+        {
+          type: "garage",
+          name: "Garagebox 1",
+          role: "Owner",
+          href: "/(dashboard)/garagebox-1",
+        },
+      ],
+    },
+    lease: {
+      name: "CommLease_Meir1_2024",
+      startDate: "01/01/2024",
+      endDate: "31/12/2024",
+      units: [
+        {
+          type: "commercial",
+          name: "Commercial property 1",
+          role: "Tenant",
+          href: "/(dashboard)/commercial-1",
+        },
+      ],
+    },
+  };
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully");
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -63,13 +70,18 @@ export default function DashboardOverviewPage() {
               />
             </div>
 
-            {/* User Avatar */}
-            <div className="flex items-center cursor-pointer">
-              <Avatar>
-                <AvatarFallback className="bg-green-100 text-green-900 font-medium text-sm">
-                  {user?.name?.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
+            {/* User Avatar and Logout */}
+            <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={handleLogout}>
+                Logout
+              </Button>
+              <div className="flex items-center cursor-pointer">
+                <Avatar>
+                  <AvatarFallback className="bg-green-100 text-green-900 font-medium text-sm">
+                    {user?.name?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
             </div>
           </div>
         </div>
@@ -78,7 +90,7 @@ export default function DashboardOverviewPage() {
       <div className="bg-white border-b border-gray-200 flex justify-start items-center px-8">
         <div className="py-4">
           <div className="text-lg font-semibold text-gray-900">
-            Welcome back Mitchell
+            Welcome back {user?.name}
           </div>
           <div className="text-sm text-gray-500">
             Select a building or lease to continue
@@ -92,12 +104,12 @@ export default function DashboardOverviewPage() {
         <div className="bg-white rounded-lg border border-gray-200 mb-4">
           <div className="p-3 border-b border-gray-200">
             <div className="font-semibold text-gray-900">
-              {user?.owner?.name}
+              {data?.owner?.name}
             </div>
-            <div className="text-sm text-gray-500">{user?.owner?.address}</div>
+            <div className="text-sm text-gray-500">{data?.owner?.address}</div>
           </div>
           <div className="space-y-1">
-            {user?.owner?.units?.map((u) => (
+            {data?.owner?.units?.map((u) => (
               <Link
                 key={u?.name}
                 href={u?.href}
@@ -131,10 +143,10 @@ export default function DashboardOverviewPage() {
         <div className="bg-white rounded-lg border border-gray-200 mb-4">
           <div className="p-3 border-b border-gray-200">
             <div className="font-semibold text-gray-900">
-              {user?.lease?.name}
+              {data?.lease?.name}
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span className="font-medium">{user?.lease?.startDate}</span>
+              <span className="font-medium">{data?.lease?.startDate}</span>
               <svg
                 width="12"
                 height="11"
@@ -147,11 +159,11 @@ export default function DashboardOverviewPage() {
                   fill="#414141"
                 />
               </svg>
-              <span className="font-medium">{user?.lease?.endDate}</span>
+              <span className="font-medium">{data?.lease?.endDate}</span>
             </div>
           </div>
           <div className="space-y-1">
-            {user?.lease?.units?.map((u) => (
+            {data?.lease?.units?.map((u) => (
               <Link
                 key={u?.name}
                 href={u?.href}
@@ -174,14 +186,6 @@ export default function DashboardOverviewPage() {
               </Link>
             ))}
           </div>
-        </div>
-
-        {/* Missing property note */}
-        <div className="text-sm text-gray-500 mt-2">
-          Missing one or more properties? If you have a syndic or steward for
-          another property who also uses SNDQ you can ask them for an access
-          code. Enter the access code in your personal settings to gain access
-          to these properties.
         </div>
       </div>
     </div>
