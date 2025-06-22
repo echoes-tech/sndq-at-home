@@ -6,4 +6,5 @@ export interface User {
   role: string;
   is_council_member: boolean;
   status: string;
+  avatar: string;
 }

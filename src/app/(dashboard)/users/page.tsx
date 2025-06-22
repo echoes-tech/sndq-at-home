@@ -18,7 +18,7 @@ export default function UsersPage() {
   const handleCouncilChange = (userId: string, value: boolean) => {
     setUsers((prev) =>
       prev.map((user) =>
-        user.id === userId ? { ...user, council: value } : user
+        user.id === userId ? { ...user, is_council_member: value } : user
       )
     );
   };

@@ -45,7 +45,7 @@ export default function UserTable({ users, onCouncilChange }: UserTableProps) {
             </div>
             <div>
               <div className="font-medium text-gray-900">{user.name}</div>
-              <div className="text-sm text-gray-500">{user.info}</div>
+              <div className="text-sm text-gray-500">{user.email}</div>
             </div>
           </div>
         );
@@ -57,7 +57,7 @@ export default function UserTable({ users, onCouncilChange }: UserTableProps) {
         <div className="flex justify-center">
           <span className="text-base mr-2">Co-owner council</span>
           <Switch
-            checked={user.council}
+            checked={user.is_council_member}
             onCheckedChange={(checked) => onCouncilChange(user.id, checked)}
             className="data-[state=checked]:bg-blue-800 data-[state=unchecked]:bg-gray-300"
           />
@@ -68,13 +68,13 @@ export default function UserTable({ users, onCouncilChange }: UserTableProps) {
     {
       header: "Activation",
       accessorKey: "activation" as keyof User,
-      cell: (user) => (
+      cell: () => (
         <div className="">
           <div className="text-base">
-            {formatDate(user.activation, "MMM d, yyyy")}
+            {formatDate("2025-06-22", "MMM d, yyyy")}
           </div>
           <div className="text-sm text-gray-500">
-            {formatDate(user.activation, "hh:mm")}
+            {formatDate("2025-06-22", "hh:mm")}
           </div>
         </div>
       ),
@@ -82,13 +82,13 @@ export default function UserTable({ users, onCouncilChange }: UserTableProps) {
     {
       header: "Last login",
       accessorKey: "lastLogin" as keyof User,
-      cell: (user) => (
+      cell: () => (
         <div className="">
           <div className="text-base">
-            {formatDate(user.lastLogin, "MMM d, yyyy")}
+            {formatDate("2025-06-22", "MMM d, yyyy")}
           </div>
           <div className="text-sm text-gray-500">
-            {formatDate(user.lastLogin, "hh:mm")}
+            {formatDate("2025-06-22", "hh:mm")}
           </div>
         </div>
       ),
