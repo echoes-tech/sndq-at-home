@@ -9,14 +9,13 @@ on:
     branches:
       - main
     paths:
-      - ".github/workflows/vercel.yml"
+      - ".github/workflows/production.yml"
+      - "messages/**"
       - "src/**"
       - "package.json"
-      - "package-lock.json"
 
 jobs:
-  Deploy-Production:
-    if: github.ref == 'refs/heads/main'
+  Deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
